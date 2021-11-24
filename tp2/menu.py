@@ -1,11 +1,7 @@
 from typing import Any, Callable
 
 class Choice:
-    def __init__(
-        self,
-        value: str,
-        handler: Callable[..., Any]=None
-    ) -> None:
+    def __init__(self, value: str, handler: Callable[..., Any]=None) -> None:
         self.value = value
         if not handler:
             handler = lambda : value
@@ -15,12 +11,7 @@ class Choice:
         return self.value
 
 class Menu:
-    def __init__(
-        self,
-        welcome: str,
-        choices: list[Choice],
-        prompt: str="Votre choix : "
-    ) -> None:
+    def __init__(self, welcome: str, choices: list[Choice], prompt: str="Votre choix : ") -> None:
         self.welcome = welcome
         self.choices = choices
         self.prompt = prompt
