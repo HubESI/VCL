@@ -1,16 +1,22 @@
 from typing import Any, Callable
 
 class Choice:
-    def __init__(self, value: str, handler: Callable[['Choice'], Any]=lambda choice : choice) -> None:
+    def __init__(
+        self,
+        value: str,
+        handler: Callable[['Choice', ...], Any]=lambda choice : choice,
+        *args,
+        **kwargs
+    ) -> None:
         self.value = value
-        self.handler = self._decorate_handler(handler)
+        self.handler = self._decorate_handler(handler, *args, **kwargs)
     
     def __str__(self) -> str:
         return self.value
     
-    def _decorate_handler(self, handler: Callable[['Choice'], Any]):
+    def _decorate_handler(self, handler: Callable[['Choice', ...], Any], *args, **kwargs):
         def wrapper() -> Any:
-            return handler(self)
+            return handler(self, *args, **kwargs)
         return wrapper
 
 class Menu:
