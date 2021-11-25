@@ -1,14 +1,17 @@
 from typing import Any, Callable
 
 class Choice:
-    def __init__(self, value: str, handler: Callable[..., Any]=None) -> None:
+    def __init__(self, value: str, handler: Callable[['Choice'], Any]=lambda choice : choice) -> None:
         self.value = value
-        if not handler:
-            handler = lambda : value
-        self.handler = handler
+        self.handler = self._decorate_handler(handler)
     
     def __str__(self) -> str:
         return self.value
+    
+    def _decorate_handler(self, handler: Callable[['Choice'], Any]):
+        def wrapper() -> Any:
+            return handler(self)
+        return wrapper
 
 class Menu:
     def __init__(self, welcome: str, choices: list[Choice], prompt: str="Votre choix : ") -> None:
