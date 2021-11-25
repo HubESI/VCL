@@ -34,6 +34,10 @@ def wrap_ls_vms(choice: Choice):
 def wrap_get_hyper_name(choice: Choice):
     print(f"Nom de la machine hyperviseur: {utils.get_hyper_name()}")
 
+def exit_handler(choice: Choice):
+    utils.close_conn(conn)
+    sys.exit()
+
 
 MENU = Menu(
     "Programme de gestion des machines virtuelles ; veuillez entrer votre choix",
@@ -43,9 +47,14 @@ MENU = Menu(
         Choice("Démarrer une machine", choose_vm(handler=wrap_start_vm)),
         Choice("Arrêter une machine", choose_vm(handler=wrap_stop_vm)),
         Choice("État d'une machine", choose_vm(handler=wrap_get_vm_info)),
-        Choice("Quitter", lambda choice : sys.exit())
+        Choice("Quitter", exit_handler)
     ]
 )
+
+conn = utils.connect()
+if not conn:
+    print("Impossible de se connecter à l'hyperviseur")
+    sys.exit(1)
 
 while True:
     MENU.run()
