@@ -21,7 +21,9 @@ def choose_vm(
         if len(vms) == 0:
             print(novm_msg)
             return
-        Menu(welcome, list(map(lambda vm: Choice(vm.name(), handler, conn), vms))).run()
+        choices = list(map(lambda vm: Choice(vm.name(), handler, conn), vms))
+        choices.append(Choice("Quitter"))
+        Menu(welcome, choices).run()
     return wrapper
 
 def wrap_start_vm(vm: Choice, conn: LibVirtUtils):
