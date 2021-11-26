@@ -7,7 +7,7 @@ from utils import LibVirtApi, virDomain
 def choose_vm(
     vms_gen: Callable[..., list[virDomain]],
     handler: Callable[..., Any],
-    welcome: str="Veuillez choisir une machine ",
+    welcome: str="Veuillez choisir une machine",
     error_msg: str="Impossible de lister les vms",
     novm_msg: str="Aucune vm trouvée",
     *args,
@@ -37,9 +37,7 @@ def wrap_shutdown_vm(vm: Choice, conn: LibVirtApi):
         print(f"Impossible d'envoyer une demande d'arrêt à '{vm}'")
 
 def wrap_destroy_vm(vm: Choice, conn: LibVirtApi):
-    a = conn.destroy_vm(vm.value)
-    print('lkj', a)
-    if a:
+    if conn.destroy_vm(vm.value):
         print(f"Machine '{vm}' arrêtée avec sucès")
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
@@ -51,10 +49,10 @@ def wrap_get_vm_info(vm: Choice, conn: LibVirtApi):
 def wrap_ls_vms(choice: Choice, conn: LibVirtApi):
     vms = conn.ls_vms()
     if vms is None:
-        print("Impossible de lister les vms")
+        print("Impossible de lister les machine virtuelle")
     else:
         vms_names = list(map(lambda vm: vm.name(), vms))
-        print(f"Machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
+        print(f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
 
 def wrap_get_hyper_name(choice: Choice, conn: LibVirtApi):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
@@ -75,10 +73,44 @@ MENU = Menu(
     [
         Choice("Afficher le nom de la machine hyperviseur", wrap_get_hyper_name, conn),
         Choice("Lister les machines virtuelles", wrap_ls_vms, conn),
-        Choice("Démarrer une machine", choose_vm(conn.ls_inactive_vms, wrap_start_vm), conn),
-        Choice("Demander l'arrêt d'une machine", choose_vm(conn.ls_active_vms, wrap_shutdown_vm), conn),
-        Choice("Arrêter une machine", choose_vm(conn.ls_active_vms, wrap_destroy_vm), conn),
-        Choice("État d'une machine", choose_vm(conn.ls_vms, wrap_get_vm_info), conn),
+        Choice(
+            "Démarrer une machine virtuelle",
+            choose_vm(
+                conn.ls_inactive_vms,
+                wrap_start_vm,
+                "Veuillez choisir une machine inactive à activer",
+                "Impossible de lister les machines virtuelles inactives",
+                "Aucune machine virtuelle inactive trouvée"
+            ),
+            conn
+        ),
+        Choice(
+            "Demander l'arrêt d'une machine virtuelle",
+            choose_vm(
+                conn.ls_active_vms,
+                wrap_shutdown_vm,
+                "Veuillez choisir une machine active à demander l'arrêt",
+                "Impossible de lister les machines virtuelles actives",
+                "Aucune machine virtuelle active trouvée"
+            ),
+            conn
+        ),
+        Choice(
+            "Arrêter une machine virtuelle",
+            choose_vm(
+                conn.ls_active_vms,
+                wrap_destroy_vm,
+                "Veuillez choisir une machine active à arrêter",
+                "Impossible de lister les machines virtuelles actives",
+                "Aucune machine virtuelle active trouvée"
+            ),
+            conn
+        ),
+        Choice(
+            "Afficher l'état d'une machine virtuelle",
+            choose_vm(conn.ls_vms, wrap_get_vm_info),
+            conn
+        ),
         Choice("Quitter", exit_handler, conn)
     ]
 )
