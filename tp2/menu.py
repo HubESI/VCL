@@ -41,7 +41,7 @@ class Menu:
                 print("Veuillez entrer le numéro de votre choix")
             except AssertionError as e:
                 print(f"Votre choix doit être entre 0 (inclus) et {len(self.choices)} (exclusif)")
-
+    
     def run(self) -> Any:
         if len(self.choices) == 0:
             return None
