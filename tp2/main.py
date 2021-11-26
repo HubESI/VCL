@@ -1,4 +1,5 @@
 import sys
+import os
 from typing import Any, Callable
 
 from menu import Menu, Choice
@@ -59,6 +60,9 @@ def wrap_ls_vms(choice: Choice, conn: LibVirtUtils):
 def wrap_get_hyper_name(choice: Choice, conn: LibVirtUtils):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
 
+def clrsc_handler(choice: Choice):
+    os.system('clear')
+
 def exit_handler(choice: Choice, conn: LibVirtUtils):
     conn.close_conn()
     sys.exit()
@@ -113,6 +117,7 @@ MENU = Menu(
             choose_vm(conn.ls_vms, wrap_get_vm_info),
             conn
         ),
+        Choice("Clear", clrsc_handler),
         Choice("Quitter", exit_handler, conn)
     ]
 )
