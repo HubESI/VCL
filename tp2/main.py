@@ -8,16 +8,18 @@ def choose_vm(
     vms_gen: Callable[..., list[virDomain]],
     handler: Callable[..., Any],
     welcome: str="Veuillez choisir une machine ",
+    error_msg: str="Impossible de lister les vms",
+    no_vm_msg: str="Aucune vm trouvée",
     *args,
     **kwargs
 ):
     def wrapper(choice: Choice, conn: LibVirtApi):
         vms = vms_gen(*args, **kwargs)
         if not vms:
-            print("Impossible de lister les vms")
+            print(error_msg)
             return
         if len(vms) == 0:
-            print("Aucune vm trouvée")
+            print(no_vm_msg)
             return
         Menu(welcome, list(map(lambda vm: Choice(vm.name(), handler, conn), vms))).run()
     return wrapper
