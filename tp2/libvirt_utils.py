@@ -1,7 +1,7 @@
 import libvirt
 from libvirt import virDomain
 
-class LibVirtApi:
+class LibVirtUtils:
     def __init__(self, uri: str=None) -> None:
         self.conn = libvirt.open(uri)
 

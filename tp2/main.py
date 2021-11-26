@@ -2,7 +2,7 @@ import sys
 from typing import Any, Callable
 
 from menu import Menu, Choice
-from utils import LibVirtApi, virDomain
+from libvirt_utils import LibVirtUtils, virDomain
 
 def choose_vm(
     vms_gen: Callable[..., list[virDomain]],
@@ -13,7 +13,7 @@ def choose_vm(
     *args,
     **kwargs
 ):
-    def wrapper(choice: Choice, conn: LibVirtApi):
+    def wrapper(choice: Choice, conn: LibVirtUtils):
         vms = vms_gen(*args, **kwargs)
         if vms is None:
             print(error_msg)
@@ -24,29 +24,29 @@ def choose_vm(
         Menu(welcome, list(map(lambda vm: Choice(vm.name(), handler, conn), vms))).run()
     return wrapper
 
-def wrap_start_vm(vm: Choice, conn: LibVirtApi):
+def wrap_start_vm(vm: Choice, conn: LibVirtUtils):
     if conn.start_vm(vm.value):
         print(f"Machine '{vm}' démarrée avec sucès")
     else:
         print(f"Échec du démarrage de la machine '{vm}'")
 
-def wrap_shutdown_vm(vm: Choice, conn: LibVirtApi):
+def wrap_shutdown_vm(vm: Choice, conn: LibVirtUtils):
     if conn.shutdown_vm(vm.value):
         print(f"Demande d'arrêt envoyée avec succès à '{vm}'")
     else:
         print(f"Impossible d'envoyer une demande d'arrêt à '{vm}'")
 
-def wrap_destroy_vm(vm: Choice, conn: LibVirtApi):
+def wrap_destroy_vm(vm: Choice, conn: LibVirtUtils):
     if conn.destroy_vm(vm.value):
         print(f"Machine '{vm}' arrêtée avec sucès")
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
 
-def wrap_get_vm_info(vm: Choice, conn: LibVirtApi):
+def wrap_get_vm_info(vm: Choice, conn: LibVirtUtils):
     print(f"Informations de la machine '{vm}':")
     print(conn.get_vm_info(vm.value))
 
-def wrap_ls_vms(choice: Choice, conn: LibVirtApi):
+def wrap_ls_vms(choice: Choice, conn: LibVirtUtils):
     vms = conn.ls_vms()
     if vms is None:
         print("Impossible de lister les machine virtuelle")
@@ -54,16 +54,16 @@ def wrap_ls_vms(choice: Choice, conn: LibVirtApi):
         vms_names = list(map(lambda vm: vm.name(), vms))
         print(f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
 
-def wrap_get_hyper_name(choice: Choice, conn: LibVirtApi):
+def wrap_get_hyper_name(choice: Choice, conn: LibVirtUtils):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
 
-def exit_handler(choice: Choice, conn: LibVirtApi):
+def exit_handler(choice: Choice, conn: LibVirtUtils):
     conn.close_conn()
     sys.exit()
 
 
 try:
-    conn = LibVirtApi()
+    conn = LibVirtUtils()
 except Exception as e:
     print("Impossible de se connecter à l'hyperviseur")
     sys.exit(1)
