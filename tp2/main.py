@@ -52,6 +52,28 @@ def wrap_get_vm_hardware_info(vm: Choice, conn: LibVirtUtils):
     print(f"Mémoire: maximalle {info['maxmem']} MiB")
     print(f"Processeurs: {info['cpus']} vcpu")
 
+def wrap_get_vm_network_info(vm: Choice, conn: LibVirtUtils):
+    net_info = conn.get_vm_network_info(vm.value)
+    if len(net_info) == 0:
+        print(f"Impossible d'afficher les informations réseau de la machine '{vm}'")
+        return
+    print(f"Informations réseau de la machine '{vm}' :")
+    for source, source_value in net_info.items():
+        print(f"From {source}")
+        if len(source_value) == 0:
+            print("\t N/A")
+            continue
+        for net, net_value in source_value.items():
+            print(f"\tRéseau virtuel: {net}")
+            print(f"\t\tInterface (MAC): {net_value['hwaddr']}")
+            print("\t\tAdresses IP:")
+            if len(net_value['addrs']) == 0:
+                print("\t\t\t N/A")
+                continue
+            for adr in net_value['addrs']:
+                print(f"\t\t\t{conn.get_ip_type(adr['type'])} {adr['addr']}/{adr['prefix']}")
+
+
 def wrap_ls_vms(choice: Choice, conn: LibVirtUtils):
     vms = conn.ls_vms()
     if vms is None:
@@ -118,6 +140,17 @@ MENU = Menu(
         Choice(
             "Afficher la configuration matérielle d'une machine virtuelle",
             choose_vm(conn.ls_vms, wrap_get_vm_hardware_info),
+            conn
+        ),
+        Choice(
+            "Afficher les informations réseau d'une machine virtuelle",
+            choose_vm(
+                conn.ls_active_vms,
+                wrap_get_vm_network_info,
+                "Veuillez choisir une machine active",
+                "Impossible de lister les machines virtuelles actives",
+                "Aucune machine virtuelle active trouvée"
+            ),
             conn
         ),
         Choice("Clear", clrsc_handler),
