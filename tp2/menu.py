@@ -43,6 +43,8 @@ class Menu:
                 print(f"Votre choix doit être entre 0 (inclus) et {len(self.choices)} (exclusif)")
 
     def run(self) -> Any:
+        if len(self.choices) == 0:
+            return None
         print(self)
         choice = self._get_choice()
         return self.choices[choice].handler()
