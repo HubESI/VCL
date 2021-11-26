@@ -7,8 +7,14 @@ class LibVirtApi:
     def get_hyper_name(self) -> str:
         return self.conn.getHostname()
 
-    def ls_vms(self) -> list[str]:
-        return ["vm1", "vm2", "vm3"]
+    def ls_vms(self) -> list[libvirt.virDomain]:
+        return self.conn.listAllDomains(0)
+    
+    def ls_active_vms(self) -> list[libvirt.virDomain]:
+        pass
+
+    def ls_inactive_vms(self) -> list[libvirt.virDomain]:
+        pass
 
     def start_vm(self, vm: str) -> bool:
         return True
@@ -18,3 +24,6 @@ class LibVirtApi:
 
     def get_vm_info(self, vm: str) -> str:
         return "info of"
+    
+    def close_conn(self):
+        self.conn.close()

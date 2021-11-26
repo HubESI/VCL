@@ -28,14 +28,15 @@ def wrap_get_vm_info(vm: Choice, conn: LibVirtApi):
     print(conn.get_vm_info(vm.value))
 
 def wrap_ls_vms(choice: Choice, conn: LibVirtApi):
-    vms = ", ".join(conn.ls_vms())
-    print(f"Liste des machines virtuelles: {vms}")
+    vms = conn.ls_vms()
+    vms_names = list(map(lambda vm: vm.name(), vms))
+    print(f"Machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
 
 def wrap_get_hyper_name(choice: Choice, conn: LibVirtApi):
-    print(f"Nom de la machine hyperviseur: {conn.get_hyper_name()}")
+    print(f"Machine hyperviseur: {conn.get_hyper_name()}")
 
 def exit_handler(choice: Choice, conn: LibVirtApi):
-    conn.close_conn(conn)
+    conn.close_conn()
     sys.exit()
 
 
@@ -53,7 +54,7 @@ MENU = Menu(
         Choice("Démarrer une machine", choose_vm(handler=wrap_start_vm), conn),
         Choice("Arrêter une machine", choose_vm(handler=wrap_stop_vm), conn),
         Choice("État d'une machine", choose_vm(handler=wrap_get_vm_info), conn),
-        Choice("Quitter", exit_handler)
+        Choice("Quitter", exit_handler, conn)
     ]
 )
 
