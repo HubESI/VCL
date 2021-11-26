@@ -6,7 +6,7 @@ from utils import LibVirtApi, virDomain
 
 def choose_vm(
     vms_gen: Callable[..., list[virDomain]],
-    handler: Callable[[Choice, ...], Any],
+    handler: Callable[..., Any],
     welcome: str="Veuillez choisir une machine ",
     *args,
     **kwargs

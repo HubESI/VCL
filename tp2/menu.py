@@ -4,7 +4,7 @@ class Choice:
     def __init__(
         self,
         value: str,
-        handler: Callable[['Choice', ...], Any]=lambda choice : choice,
+        handler: Callable[..., Any]=lambda choice : choice,
         *args,
         **kwargs
     ) -> None:
@@ -14,7 +14,7 @@ class Choice:
     def __str__(self) -> str:
         return self.value
     
-    def _decorate_handler(self, handler: Callable[['Choice', ...], Any], *args, **kwargs):
+    def _decorate_handler(self, handler: Callable[..., Any], *args, **kwargs):
         def wrapper() -> Any:
             return handler(self, *args, **kwargs)
         return wrapper
