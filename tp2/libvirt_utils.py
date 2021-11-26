@@ -35,8 +35,15 @@ class LibVirtUtils:
             return True if vm_obj.destroy()>=0 else False
         return False
     
-    def get_vm_info(self, vm: str) -> str:
-        return "info of"
+    def get_vm_hardware_info(self, vm: str) -> dict[str, str]:
+        vm_obj = self.conn.lookupByName(vm)
+        if vm_obj:
+            info = vm_obj.info()
+            return {
+                "maxmem": info[1] / 1024,
+                "mem": info[2] / 1024,
+                "cpus": info[3]
+            }
     
     def close_conn(self):
         self.conn.close()

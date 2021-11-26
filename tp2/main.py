@@ -45,9 +45,12 @@ def wrap_destroy_vm(vm: Choice, conn: LibVirtUtils):
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
 
-def wrap_get_vm_info(vm: Choice, conn: LibVirtUtils):
-    print(f"Informations de la machine '{vm}':")
-    print(conn.get_vm_info(vm.value))
+def wrap_get_vm_hardware_info(vm: Choice, conn: LibVirtUtils):
+    info = conn.get_vm_hardware_info(vm.value)
+    print(f"Configuration matérielle de la machine '{vm}':")
+    print(f"Mémoire: {info['mem']} MiB")
+    print(f"Mémoire: maximalle {info['maxmem']} MiB")
+    print(f"Processeurs: {info['cpus']} vcpu")
 
 def wrap_ls_vms(choice: Choice, conn: LibVirtUtils):
     vms = conn.ls_vms()
@@ -113,8 +116,8 @@ MENU = Menu(
             conn
         ),
         Choice(
-            "Afficher l'état d'une machine virtuelle",
-            choose_vm(conn.ls_vms, wrap_get_vm_info),
+            "Afficher la configuration matérielle d'une machine virtuelle",
+            choose_vm(conn.ls_vms, wrap_get_vm_hardware_info),
             conn
         ),
         Choice("Clear", clrsc_handler),
