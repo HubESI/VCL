@@ -1,4 +1,5 @@
 import libvirt
+from libvirt import virDomain
 
 class LibVirtApi:
     def __init__(self, uri: str=None) -> None:
@@ -7,14 +8,14 @@ class LibVirtApi:
     def get_hyper_name(self) -> str:
         return self.conn.getHostname()
 
-    def ls_vms(self) -> list[libvirt.virDomain]:
+    def ls_vms(self) -> list[virDomain]:
         return self.conn.listAllDomains(0)
     
-    def ls_active_vms(self) -> list[libvirt.virDomain]:
-        pass
+    def ls_active_vms(self) -> list[virDomain]:
+        return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
 
-    def ls_inactive_vms(self) -> list[libvirt.virDomain]:
-        pass
+    def ls_inactive_vms(self) -> list[virDomain]:
+        return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_INACTIVE)
 
     def start_vm(self, vm: str) -> bool:
         return True
