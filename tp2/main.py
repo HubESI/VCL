@@ -9,17 +9,17 @@ def choose_vm(
     handler: Callable[..., Any],
     welcome: str="Veuillez choisir une machine ",
     error_msg: str="Impossible de lister les vms",
-    no_vm_msg: str="Aucune vm trouvée",
+    novm_msg: str="Aucune vm trouvée",
     *args,
     **kwargs
 ):
     def wrapper(choice: Choice, conn: LibVirtApi):
         vms = vms_gen(*args, **kwargs)
-        if not vms:
+        if vms is None:
             print(error_msg)
             return
         if len(vms) == 0:
-            print(no_vm_msg)
+            print(novm_msg)
             return
         Menu(welcome, list(map(lambda vm: Choice(vm.name(), handler, conn), vms))).run()
     return wrapper
@@ -50,11 +50,11 @@ def wrap_get_vm_info(vm: Choice, conn: LibVirtApi):
 
 def wrap_ls_vms(choice: Choice, conn: LibVirtApi):
     vms = conn.ls_vms()
-    if vms:
+    if vms is None:
+        print("Impossible de lister les vms")
+    else:
         vms_names = list(map(lambda vm: vm.name(), vms))
         print(f"Machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
-    else:
-        print("Impossible de lister les vms")
 
 def wrap_get_hyper_name(choice: Choice, conn: LibVirtApi):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
@@ -73,7 +73,7 @@ except Exception as e:
 MENU = Menu(
     "Programme de gestion des machines virtuelles ; veuillez entrer votre choix",
     [
-        Choice("Nom de la machine hyperviseur", wrap_get_hyper_name, conn),
+        Choice("Afficher le nom de la machine hyperviseur", wrap_get_hyper_name, conn),
         Choice("Lister les machines virtuelles", wrap_ls_vms, conn),
         Choice("Démarrer une machine", choose_vm(conn.ls_inactive_vms, wrap_start_vm), conn),
         Choice("Demander l'arrêt d'une machine", choose_vm(conn.ls_active_vms, wrap_shutdown_vm), conn),
