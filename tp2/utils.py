@@ -3,7 +3,7 @@ from libvirt import virDomain
 
 class LibVirtApi:
     def __init__(self, uri: str=None) -> None:
-        self.conn = libvirt.openReadOnly(uri)
+        self.conn = libvirt.open(uri)
 
     def get_hyper_name(self) -> str:
         return self.conn.getHostname()
@@ -18,11 +18,23 @@ class LibVirtApi:
         return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_INACTIVE)
 
     def start_vm(self, vm: str) -> bool:
-        return True
-
-    def stop_vm(self, vm: str) -> bool:
+        vm_obj = self.conn.lookupByName(vm)
+        if vm_obj:
+            return True if vm_obj.create()>=0 else False
         return False
 
+    def shutdown_vm(self, vm: str) -> bool:
+        vm_obj = self.conn.lookupByName(vm)
+        if vm_obj:
+            return True if vm_obj.shutdown()>=0 else False
+        return False
+    
+    def destroy_vm(self, vm: str) -> bool:
+        vm_obj = self.conn.lookupByName(vm)
+        if vm_obj:
+            return True if vm_obj.destroy()>=0 else False
+        return False
+    
     def get_vm_info(self, vm: str) -> str:
         return "info of"
     

@@ -30,8 +30,16 @@ def wrap_start_vm(vm: Choice, conn: LibVirtApi):
     else:
         print(f"Échec du démarrage de la machine '{vm}'")
 
-def wrap_stop_vm(vm: Choice, conn: LibVirtApi,):
-    if conn.stop_vm(vm.value):
+def wrap_shutdown_vm(vm: Choice, conn: LibVirtApi):
+    if conn.shutdown_vm(vm.value):
+        print(f"Demande d'arrêt envoyée avec succès à '{vm}'")
+    else:
+        print(f"Impossible d'envoyer une demande d'arrêt à '{vm}'")
+
+def wrap_destroy_vm(vm: Choice, conn: LibVirtApi):
+    a = conn.destroy_vm(vm.value)
+    print('lkj', a)
+    if a:
         print(f"Machine '{vm}' arrêtée avec sucès")
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
@@ -68,7 +76,8 @@ MENU = Menu(
         Choice("Nom de la machine hyperviseur", wrap_get_hyper_name, conn),
         Choice("Lister les machines virtuelles", wrap_ls_vms, conn),
         Choice("Démarrer une machine", choose_vm(conn.ls_inactive_vms, wrap_start_vm), conn),
-        Choice("Arrêter une machine", choose_vm(conn.ls_active_vms, wrap_stop_vm), conn),
+        Choice("Demander l'arrêt d'une machine", choose_vm(conn.ls_active_vms, wrap_shutdown_vm), conn),
+        Choice("Arrêter une machine", choose_vm(conn.ls_active_vms, wrap_destroy_vm), conn),
         Choice("État d'une machine", choose_vm(conn.ls_vms, wrap_get_vm_info), conn),
         Choice("Quitter", exit_handler, conn)
     ]
