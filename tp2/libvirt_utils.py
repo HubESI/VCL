@@ -19,21 +19,22 @@ class LibVirtUtils:
     
     def start_vm(self, vm: str) -> bool:
         vm_obj = self.conn.lookupByName(vm)
-        if vm_obj:
-            return True if vm_obj.create()>=0 else False
-        return False
+        if vm_obj is None:
+            return False
+        return True if vm_obj.create()>=0 else False
+        
     
     def shutdown_vm(self, vm: str) -> bool:
         vm_obj = self.conn.lookupByName(vm)
-        if vm_obj:
-            return True if vm_obj.shutdown()>=0 else False
-        return False
+        if vm_obj is None:
+            return False
+        return True if vm_obj.shutdown()>=0 else False
     
     def destroy_vm(self, vm: str) -> bool:
         vm_obj = self.conn.lookupByName(vm)
-        if vm_obj:
-            return True if vm_obj.destroy()>=0 else False
-        return False
+        if vm_obj is None:
+            return False
+        return True if vm_obj.destroy()>=0 else False
     
     def get_vm_hardware_info(self, vm: str) -> dict[str, str]:
         vm_obj = self.conn.lookupByName(vm)
