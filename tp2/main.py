@@ -29,7 +29,7 @@ def choose_vm(
 
 def wrap_start_vm(vm: Choice, conn: LibVirtUtils):
     if conn.start_vm(vm.value):
-        print(f"Machine '{vm}' démarrée avec sucès")
+        print(f"Machine '{vm}' démarrée avec succès")
     else:
         print(f"Échec du démarrage de la machine '{vm}'")
 
@@ -41,7 +41,7 @@ def wrap_shutdown_vm(vm: Choice, conn: LibVirtUtils):
 
 def wrap_destroy_vm(vm: Choice, conn: LibVirtUtils):
     if conn.destroy_vm(vm.value):
-        print(f"Machine '{vm}' arrêtée avec sucès")
+        print(f"Machine '{vm}' arrêtée avec succès")
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
 
