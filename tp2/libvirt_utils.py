@@ -1,43 +1,42 @@
-from typing import Any
 import libvirt
 from libvirt import libvirtError, virDomain
 
 class LibVirtUtils:
-    def __init__(self, uri: str=None) -> None:
+    def __init__(self, uri=None):
         self.conn = libvirt.open(uri)
     
-    def get_hyper_name(self) -> str:
+    def get_hyper_name(self):
         return self.conn.getHostname()
     
-    def ls_vms(self) -> list[virDomain]:
+    def ls_vms(self):
         return self.conn.listAllDomains(0)
     
-    def ls_active_vms(self) -> list[virDomain]:
+    def ls_active_vms(self):
         return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
     
-    def ls_inactive_vms(self) -> list[virDomain]:
+    def ls_inactive_vms(self):
         return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_INACTIVE)
     
-    def start_vm(self, vm: str) -> bool:
+    def start_vm(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj is None:
             return False
         return True if vm_obj.create()>=0 else False
         
     
-    def shutdown_vm(self, vm: str) -> bool:
+    def shutdown_vm(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj is None:
             return False
         return True if vm_obj.shutdown()>=0 else False
     
-    def destroy_vm(self, vm: str) -> bool:
+    def destroy_vm(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj is None:
             return False
         return True if vm_obj.destroy()>=0 else False
     
-    def get_vm_hardware_info(self, vm: str) -> dict[str, Any]:
+    def get_vm_hardware_info(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj:
             info = vm_obj.info()
@@ -47,20 +46,29 @@ class LibVirtUtils:
                 "cpus": info[3]
             }
     
-    def get_vm_network_info(self, vm: str) -> dict[str, Any]:
+    def get_vm_network_info(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj:
             net_info = {}
             try:
-                net_info['ARP'] = vm_obj.interfaceAddresses(libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_ARP, 0)
-                net_info['LEASE'] = vm_obj.interfaceAddresses(libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE, 0)
-                net_info['AGENT'] = vm_obj.interfaceAddresses(libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_AGENT, 0)
+                net_info['ARP'] = vm_obj.interfaceAddresses(
+                    libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_ARP,
+                    0
+                )
+                net_info['LEASE'] = vm_obj.interfaceAddresses(
+                    libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE,
+                    0
+                )
+                net_info['AGENT'] = vm_obj.interfaceAddresses(
+                    libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_AGENT,
+                    0
+                )
             except libvirtError:
                 pass
             return net_info
     
     @staticmethod
-    def get_ip_type(type: int) -> str:
+    def get_ip_type(type):
         if type == libvirt.VIR_IP_ADDR_TYPE_IPV4:
             return "ipv4"
         elif type == libvirt.VIR_IP_ADDR_TYPE_IPV6:

@@ -1,20 +1,19 @@
 import sys
 import os
-from typing import Any, Callable
 
 from menu import Menu, Choice
 from libvirt_utils import LibVirtUtils, virDomain
 
 def choose_vm(
-    vms_gen: Callable[..., list[virDomain]],
-    handler: Callable[..., Any],
-    welcome: str="Veuillez choisir une machine",
-    error_msg: str="Impossible de lister les vms",
-    novm_msg: str="Aucune vm trouvée",
+    vms_gen,
+    handler,
+    welcome="Veuillez choisir une machine",
+    error_msg="Impossible de lister les vms",
+    novm_msg="Aucune vm trouvée",
     *args,
     **kwargs
 ):
-    def wrapper(choice: Choice, conn: LibVirtUtils):
+    def wrapper(choice, conn):
         vms = vms_gen(*args, **kwargs)
         if vms is None:
             print(error_msg)
@@ -27,32 +26,32 @@ def choose_vm(
         Menu(welcome, choices).run()
     return wrapper
 
-def wrap_start_vm(vm: Choice, conn: LibVirtUtils):
+def wrap_start_vm(vm, conn):
     if conn.start_vm(vm.value):
         print(f"Machine '{vm}' démarrée avec succès")
     else:
         print(f"Échec du démarrage de la machine '{vm}'")
 
-def wrap_shutdown_vm(vm: Choice, conn: LibVirtUtils):
+def wrap_shutdown_vm(vm, conn):
     if conn.shutdown_vm(vm.value):
         print(f"Demande d'arrêt envoyée avec succès à '{vm}'")
     else:
         print(f"Impossible d'envoyer une demande d'arrêt à '{vm}'")
 
-def wrap_destroy_vm(vm: Choice, conn: LibVirtUtils):
+def wrap_destroy_vm(vm, conn):
     if conn.destroy_vm(vm.value):
         print(f"Machine '{vm}' arrêtée avec succès")
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
 
-def wrap_get_vm_hardware_info(vm: Choice, conn: LibVirtUtils):
+def wrap_get_vm_hardware_info(vm, conn):
     info = conn.get_vm_hardware_info(vm.value)
     print(f"Configuration matérielle de la machine '{vm}':")
     print(f"Mémoire: {info['mem']} MiB")
     print(f"Mémoire: maximalle {info['maxmem']} MiB")
     print(f"Processeurs: {info['cpus']} vcpu")
 
-def wrap_get_vm_network_info(vm: Choice, conn: LibVirtUtils):
+def wrap_get_vm_network_info(vm, conn):
     net_info = conn.get_vm_network_info(vm.value)
     if len(net_info) == 0:
         print(f"Impossible d'afficher les informations réseau de la machine '{vm}'")
@@ -74,7 +73,7 @@ def wrap_get_vm_network_info(vm: Choice, conn: LibVirtUtils):
                 print(f"\t\t\t{conn.get_ip_type(adr['type'])} {adr['addr']}/{adr['prefix']}")
 
 
-def wrap_ls_vms(choice: Choice, conn: LibVirtUtils):
+def wrap_ls_vms(choice, conn):
     vms = conn.ls_vms()
     if vms is None:
         print("Impossible de lister les machine virtuelle")
@@ -82,13 +81,13 @@ def wrap_ls_vms(choice: Choice, conn: LibVirtUtils):
         vms_names = list(map(lambda vm: vm.name(), vms))
         print(f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
 
-def wrap_get_hyper_name(choice: Choice, conn: LibVirtUtils):
+def wrap_get_hyper_name(choice, conn):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
 
-def clrsc_handler(choice: Choice):
+def clrsc_handler(choice):
     os.system('clear')
 
-def exit_handler(choice: Choice, conn: LibVirtUtils):
+def exit_handler(choice, conn):
     conn.close_conn()
     sys.exit()
 
