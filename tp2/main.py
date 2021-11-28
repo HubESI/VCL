@@ -4,6 +4,7 @@ import os
 from menu import Menu, Choice
 from libvirt_utils import LibVirtUtils, virDomain
 
+
 def choose_vm(
     vms_gen,
     handler,
@@ -11,7 +12,7 @@ def choose_vm(
     error_msg="Impossible de lister les vms",
     novm_msg="Aucune vm trouvée",
     *args,
-    **kwargs
+    **kwargs,
 ):
     def wrapper(choice, conn):
         vms = vms_gen(*args, **kwargs)
@@ -24,7 +25,9 @@ def choose_vm(
         choices = list(map(lambda vm: Choice(vm.name(), handler, conn), vms))
         choices.append(Choice("Quitter"))
         Menu(welcome, choices).run()
+
     return wrapper
+
 
 def wrap_start_vm(vm, conn):
     if conn.start_vm(vm.value):
@@ -32,11 +35,22 @@ def wrap_start_vm(vm, conn):
     else:
         print(f"Échec du démarrage de la machine '{vm}'")
 
+
+def wrap_suspend_vm(vm, conn):
+    file_name = f"/var/lib/libvirt/save/{vm}.img'"
+    dom = conn.lookByName(vm)
+    if dom.save(file_name) >= 0:
+        print(f"Machine '{vm}' sauvegardée dans " + file_name)
+    else:
+        print(f"Échec du sauvegarde de la machine '{vm}'")
+
+
 def wrap_shutdown_vm(vm, conn):
     if conn.shutdown_vm(vm.value):
         print(f"Demande d'arrêt envoyée avec succès à '{vm}'")
     else:
         print(f"Impossible d'envoyer une demande d'arrêt à '{vm}'")
+
 
 def wrap_destroy_vm(vm, conn):
     if conn.destroy_vm(vm.value):
@@ -44,12 +58,14 @@ def wrap_destroy_vm(vm, conn):
     else:
         print(f"Échec d'arrêt de la machine '{vm}'")
 
+
 def wrap_get_vm_hardware_info(vm, conn):
     info = conn.get_vm_hardware_info(vm.value)
     print(f"Configuration matérielle de la machine '{vm}':")
     print(f"Mémoire: {info['mem']} MiB")
     print(f"Mémoire: maximalle {info['maxmem']} MiB")
     print(f"Processeurs: {info['cpus']} vcpu")
+
 
 def wrap_get_vm_network_info(vm, conn):
     net_info = conn.get_vm_network_info(vm.value)
@@ -66,11 +82,13 @@ def wrap_get_vm_network_info(vm, conn):
             print(f"\tRéseau virtuel: {net}")
             print(f"\t\tInterface (MAC): {net_value['hwaddr']}")
             print("\t\tAdresses IP:")
-            if len(net_value['addrs']) == 0:
+            if len(net_value["addrs"]) == 0:
                 print("\t\t\t N/A")
                 continue
-            for adr in net_value['addrs']:
-                print(f"\t\t\t{conn.get_ip_type(adr['type'])} {adr['addr']}/{adr['prefix']}")
+            for adr in net_value["addrs"]:
+                print(
+                    f"\t\t\t{conn.get_ip_type(adr['type'])} {adr['addr']}/{adr['prefix']}"
+                )
 
 
 def wrap_ls_vms(choice, conn):
@@ -79,13 +97,18 @@ def wrap_ls_vms(choice, conn):
         print("Impossible de lister les machine virtuelle")
     else:
         vms_names = list(map(lambda vm: vm.name(), vms))
-        print(f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
+        print(
+            f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}"
+        )
+
 
 def wrap_get_hyper_name(choice, conn):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
 
+
 def clrsc_handler(choice):
-    os.system('clear')
+    os.system("clear")
+
 
 def exit_handler(choice, conn):
     conn.close_conn()
@@ -110,9 +133,20 @@ MENU = Menu(
                 wrap_start_vm,
                 "Veuillez choisir une machine inactive à activer",
                 "Impossible de lister les machines virtuelles inactives",
-                "Aucune machine virtuelle inactive trouvée"
+                "Aucune machine virtuelle inactive trouvée",
             ),
-            conn
+            conn,
+        ),
+        Choice(
+            "Suspendre une machine virtuelle",
+            choose_vm(
+                conn.ls_active_vms,
+                wrap_suspend_vm,
+                "Veuillez choisir une machine active à suspendre",
+                "Impossible de lister les machines virtuelles actives",
+                "Aucune machine virtuelle active trouvée",
+            ),
+            conn,
         ),
         Choice(
             "Demander l'arrêt d'une machine virtuelle",
@@ -121,9 +155,9 @@ MENU = Menu(
                 wrap_shutdown_vm,
                 "Veuillez choisir une machine active à demander l'arrêt",
                 "Impossible de lister les machines virtuelles actives",
-                "Aucune machine virtuelle active trouvée"
+                "Aucune machine virtuelle active trouvée",
             ),
-            conn
+            conn,
         ),
         Choice(
             "Arrêter une machine virtuelle",
@@ -132,14 +166,14 @@ MENU = Menu(
                 wrap_destroy_vm,
                 "Veuillez choisir une machine active à arrêter",
                 "Impossible de lister les machines virtuelles actives",
-                "Aucune machine virtuelle active trouvée"
+                "Aucune machine virtuelle active trouvée",
             ),
-            conn
+            conn,
         ),
         Choice(
             "Afficher la configuration matérielle d'une machine virtuelle",
             choose_vm(conn.ls_vms, wrap_get_vm_hardware_info),
-            conn
+            conn,
         ),
         Choice(
             "Afficher les informations réseau d'une machine virtuelle",
@@ -148,15 +182,15 @@ MENU = Menu(
                 wrap_get_vm_network_info,
                 "Veuillez choisir une machine active",
                 "Impossible de lister les machines virtuelles actives",
-                "Aucune machine virtuelle active trouvée"
+                "Aucune machine virtuelle active trouvée",
             ),
-            conn
+            conn,
         ),
         Choice("Clear", clrsc_handler),
-        Choice("Quitter", exit_handler, conn)
-    ]
+        Choice("Quitter", exit_handler, conn),
+    ],
 )
 
 while True:
     MENU.run()
-    print("-"*100)
+    print("-" * 100)
