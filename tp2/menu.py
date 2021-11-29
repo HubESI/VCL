@@ -1,36 +1,28 @@
-from typing import Any, Callable
-
 class Choice:
-    def __init__(
-        self,
-        value: str,
-        handler: Callable[..., Any]=lambda choice : choice,
-        *args,
-        **kwargs
-    ) -> None:
+    def __init__(self, value, handler=lambda choice : choice, *args, **kwargs):
         self.value = value
         self.handler = self._decorate_handler(handler, *args, **kwargs)
     
-    def __str__(self) -> str:
+    def __str__(self):
         return self.value
     
-    def _decorate_handler(self, handler: Callable[..., Any], *args, **kwargs):
-        def wrapper() -> Any:
+    def _decorate_handler(self, handler, *args, **kwargs):
+        def wrapper():
             return handler(self, *args, **kwargs)
         return wrapper
 
 class Menu:
-    def __init__(self, welcome: str, choices: list[Choice], prompt: str="Votre choix : ") -> None:
+    def __init__(self, welcome, choices, prompt="Votre choix : "):
         self.welcome = welcome
         self.choices = choices
         self.prompt = prompt
     
-    def __str__(self) -> str:
+    def __str__(self):
         return '\n'.join(
             [self.welcome]+[f"{i}) {choice}" for i, choice in enumerate(self.choices)]
         )
     
-    def _get_choice(self) -> int:
+    def _get_choice(self):
         while(True):
             try:
                 choice = int(input(self.prompt))
@@ -42,7 +34,7 @@ class Menu:
             except AssertionError as e:
                 print(f"Votre choix doit être entre 0 (inclus) et {len(self.choices)} (exclusif)")
     
-    def run(self) -> Any:
+    def run(self):
         if len(self.choices) == 0:
             return None
         print(self)
