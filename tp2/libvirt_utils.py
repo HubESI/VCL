@@ -1,6 +1,17 @@
 import libvirt
 from libvirt import libvirtError, virDomain
 
+POSSIBLE_STATES = {
+    libvirt.VIR_DOMAIN_NOSTATE: "NOSTATE",
+    libvirt.VIR_DOMAIN_RUNNING: "RUNNING",
+    libvirt.VIR_DOMAIN_BLOCKED: "BLOCKED",
+    libvirt.VIR_DOMAIN_PAUSED: "PAUSED",
+    libvirt.VIR_DOMAIN_SHUTDOWN: "SHUTDOWN",
+    libvirt.VIR_DOMAIN_SHUTOFF: "SHUTOFF",
+    libvirt.VIR_DOMAIN_CRASHED: "CRASHED",
+    libvirt.VIR_DOMAIN_PMSUSPENDED: "PMSUSPENDED"
+}
+
 class LibVirtUtils:
     def __init__(self, uri=None):
         self.conn = libvirt.open(uri)
@@ -73,6 +84,10 @@ class LibVirtUtils:
             return "ipv4"
         elif type == libvirt.VIR_IP_ADDR_TYPE_IPV6:
             return "ipv6"
+    
+    @staticmethod
+    def get_states(vm: virDomain) -> list[str]:
+        return [POSSIBLE_STATES[state] for state in vm.state()]
     
     def close_conn(self):
         self.conn.close()

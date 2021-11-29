@@ -78,7 +78,7 @@ def wrap_ls_vms(choice, conn):
     if vms is None:
         print("Impossible de lister les machine virtuelle")
     else:
-        vms_names = list(map(lambda vm: vm.name(), vms))
+        vms_names = list(map(lambda vm: f"{vm.name()} ({', '.join(conn.get_states(vm))})", vms))
         print(f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
 
 def wrap_get_hyper_name(choice, conn):
