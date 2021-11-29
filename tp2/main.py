@@ -2,7 +2,7 @@ import sys
 import os
 
 from menu import Menu, Choice
-from libvirt_utils import LibVirtUtils, virDomain
+from libvirt_utils import LibVirtUtils
 
 def choose_vm(
     vms_gen,
@@ -76,10 +76,11 @@ def wrap_get_vm_network_info(vm, conn):
 def wrap_ls_vms(choice, conn):
     vms = conn.ls_vms()
     if vms is None:
-        print("Impossible de lister les machine virtuelle")
+        print("Impossible de lister les machine virtuelles")
     else:
-        vms_names = list(map(lambda vm: f"{vm.name()} ({', '.join(conn.get_states(vm))})", vms))
-        print(f"Liste des machines virtuelles: {', '.join(vms_names) if len(vms_names) else 'nul'}")
+        print(f"{'Name':<40}{'State':<40}")
+        for vm in vms:
+            print(f"{vm.name():<40}{conn.get_states(vm):<40}")
 
 def wrap_get_hyper_name(choice, conn):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
@@ -117,22 +118,22 @@ MENU = Menu(
         Choice(
             "Demander l'arrêt d'une machine virtuelle",
             choose_vm(
-                conn.ls_active_vms,
+                conn.ls_running_vms,
                 wrap_shutdown_vm,
-                "Veuillez choisir une machine active à demander l'arrêt",
-                "Impossible de lister les machines virtuelles actives",
-                "Aucune machine virtuelle active trouvée"
+                "Veuillez choisir une machine en cours d'exécution à demander l'arrêt",
+                "Impossible de lister les machines virtuelles en cours d'exécution",
+                "Aucune machine virtuelle en cours d'exécution trouvée"
             ),
             conn
         ),
         Choice(
             "Arrêter une machine virtuelle",
             choose_vm(
-                conn.ls_active_vms,
+                conn.ls_running_vms,
                 wrap_destroy_vm,
-                "Veuillez choisir une machine active à arrêter",
-                "Impossible de lister les machines virtuelles actives",
-                "Aucune machine virtuelle active trouvée"
+                "Veuillez choisir une machine en cours d'exécution à arrêter",
+                "Impossible de lister les machines virtuelles en cours d'exécution",
+                "Aucune machine virtuelle en cours d'exécution trouvée"
             ),
             conn
         ),
@@ -144,11 +145,11 @@ MENU = Menu(
         Choice(
             "Afficher les informations réseau d'une machine virtuelle",
             choose_vm(
-                conn.ls_active_vms,
+                conn.ls_running_vms,
                 wrap_get_vm_network_info,
-                "Veuillez choisir une machine active",
-                "Impossible de lister les machines virtuelles actives",
-                "Aucune machine virtuelle active trouvée"
+                "Veuillez choisir une machine en cours d'exécution",
+                "Impossible de lister les machines virtuelles en cours d'exécution",
+                "Aucune machine virtuelle en cours d'exécution trouvée"
             ),
             conn
         ),
@@ -159,4 +160,4 @@ MENU = Menu(
 
 while True:
     MENU.run()
-    print("-"*100)
+    print("*"*100)

@@ -1,5 +1,5 @@
 import libvirt
-from libvirt import libvirtError, virDomain
+from libvirt import libvirtError
 
 POSSIBLE_STATES = {
     libvirt.VIR_DOMAIN_NOSTATE: "NOSTATE",
@@ -22,8 +22,8 @@ class LibVirtUtils:
     def ls_vms(self):
         return self.conn.listAllDomains(0)
     
-    def ls_active_vms(self):
-        return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
+    def ls_running_vms(self):
+        return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_RUNNING)
     
     def ls_inactive_vms(self):
         return self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_INACTIVE)
@@ -32,20 +32,28 @@ class LibVirtUtils:
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj is None:
             return False
-        return True if vm_obj.create()>=0 else False
-        
+        try:
+            return True if vm_obj.create() >= 0 else False
+        except libvirtError:
+            return False
     
     def shutdown_vm(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj is None:
             return False
-        return True if vm_obj.shutdown()>=0 else False
+        try:
+            return True if vm_obj.shutdown() >= 0 else False
+        except libvirtError:
+            return False
     
     def destroy_vm(self, vm):
         vm_obj = self.conn.lookupByName(vm)
         if vm_obj is None:
             return False
-        return True if vm_obj.destroy()>=0 else False
+        try:
+            return True if vm_obj.destroy() >= 0 else False
+        except libvirtError:
+            return False
     
     def get_vm_hardware_info(self, vm):
         vm_obj = self.conn.lookupByName(vm)
@@ -87,7 +95,7 @@ class LibVirtUtils:
     
     @staticmethod
     def get_states(vm):
-        return [POSSIBLE_STATES[state] for state in vm.state()]
+        return POSSIBLE_STATES.get(vm.state()[0], "UNKNOWN")
     
     def close_conn(self):
         self.conn.close()
