@@ -86,7 +86,7 @@ class LibVirtUtils:
             return "ipv6"
     
     @staticmethod
-    def get_states(vm: virDomain) -> list[str]:
+    def get_states(vm):
         return [POSSIBLE_STATES[state] for state in vm.state()]
     
     def close_conn(self):
