@@ -70,15 +70,15 @@ class LibVirtUtils:
         if vm_obj:
             net_info = {}
             try:
-                net_info['ARP'] = vm_obj.interfaceAddresses(
+                net_info["ARP"] = vm_obj.interfaceAddresses(
                     libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_ARP,
                     0
                 )
-                net_info['LEASE'] = vm_obj.interfaceAddresses(
+                net_info["LEASE"] = vm_obj.interfaceAddresses(
                     libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE,
                     0
                 )
-                net_info['AGENT'] = vm_obj.interfaceAddresses(
+                net_info["AGENT"] = vm_obj.interfaceAddresses(
                     libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_AGENT,
                     0
                 )

@@ -66,10 +66,10 @@ def wrap_get_vm_network_info(vm, conn):
             print(f"\tRéseau virtuel: {net}")
             print(f"\t\tInterface (MAC): {net_value['hwaddr']}")
             print("\t\tAdresses IP:")
-            if len(net_value['addrs']) == 0:
+            if len(net_value["addrs"]) == 0:
                 print("\t\t\t N/A")
                 continue
-            for adr in net_value['addrs']:
+            for adr in net_value["addrs"]:
                 print(f"\t\t\t{conn.get_ip_type(adr['type'])} {adr['addr']}/{adr['prefix']}")
 
 
@@ -86,7 +86,7 @@ def wrap_get_hyper_name(choice, conn):
     print(f"Machine hyperviseur: {conn.get_hyper_name()}")
 
 def clrsc_handler(choice):
-    os.system('clear')
+    os.system("clear")
 
 def exit_handler(choice, conn):
     conn.close_conn()
@@ -160,4 +160,4 @@ MENU = Menu(
 
 while True:
     MENU.run()
-    print("*"*100)
+    print("="*100)
